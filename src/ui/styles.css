@@ -1,0 +1,316 @@
+/*
+ * 全体スタイル（05_ui_spec.md §1）。ライトテーマのみ。
+ * Webフォントを外部から読み込まない（外部通信禁止・06_persistence_spec.md §7）。
+ */
+
+:root {
+  --color-text: #1b1b1b;
+  --color-muted: #6b7280;
+  --color-border: #d3d7de;
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f5f6f8;
+  --color-error: #b3261e;
+  --color-error-bg: #fdecea;
+  --color-warn: #8a6100;
+  --color-warn-bg: #fff6d8;
+  --color-ok: #1b6e2f;
+  --color-info: #14539a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+  font-size: 14px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-width: 1280px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.tab-button {
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px 4px 0 0;
+  background: var(--color-bg-subtle);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.tab-button.tab-active {
+  background: var(--color-bg);
+  border-bottom-color: var(--color-bg);
+  font-weight: 700;
+}
+
+.tab-button:disabled {
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+.tab-content {
+  flex: 1 1 auto;
+  padding: 8px 0 24px;
+}
+
+.tab-panel h2 {
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+.tab-placeholder {
+  color: var(--color-muted);
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.field {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.field-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.field-note,
+.field-error {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+
+.field-note {
+  color: var(--color-muted);
+}
+
+.field-error {
+  color: var(--color-error);
+}
+
+.input-error {
+  border: 2px solid var(--color-error);
+}
+
+.field label {
+  margin-right: 16px;
+}
+
+.notice-sample {
+  background: var(--color-warn-bg);
+  color: var(--color-warn);
+  border: 1px solid currentcolor;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.storage-warning {
+  background: var(--color-warn-bg);
+  color: var(--color-warn);
+  border: 1px solid currentcolor;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+
+.issue-panel {
+  border: 2px solid var(--color-error);
+  background: var(--color-error-bg);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 12px 0;
+}
+
+.issue-panel-title {
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.issue-panel-list {
+  margin: 0;
+  padding-left: 20px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.issue-code {
+  font-family: ui-monospace, monospace;
+}
+
+.row-counts,
+.csv-import-panel {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 12px 0;
+}
+
+.row-counts ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.csv-import-table {
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.csv-import-table th,
+.csv-import-table td {
+  border-bottom: 1px solid var(--color-border);
+  padding: 4px 8px;
+  text-align: left;
+  font-weight: 400;
+}
+
+.csv-import-table td button {
+  margin-left: 8px;
+}
+
+.exp-table {
+  border-collapse: collapse;
+}
+
+.exp-table th,
+.exp-table td {
+  border: 1px solid var(--color-border);
+  padding: 2px 12px;
+  text-align: right;
+  min-width: 72px;
+}
+
+.exp-table th {
+  background: var(--color-bg-subtle);
+  font-weight: 700;
+}
+
+.exp-table .exp-zero {
+  color: var(--color-muted);
+}
+
+.app-footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+}
+
+.summary-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 72px;
+  padding: 0 8px;
+}
+
+.summary-total-label {
+  margin-right: 8px;
+}
+
+.summary-total-value {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.summary-spinner {
+  margin-left: 8px;
+  color: var(--color-muted);
+}
+
+.summary-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  display: inline-block;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+}
+
+.badge-sample {
+  color: var(--color-warn);
+  background: var(--color-warn-bg);
+  margin: 0;
+}
+
+.badge-confirmed {
+  color: var(--color-ok);
+}
+
+.badge-estimated {
+  color: var(--color-warn);
+}
+
+.badge-incomplete {
+  color: var(--color-error);
+}
+
+.badge-measured {
+  color: var(--color-ok);
+}
+
+.badge-estimated_high {
+  color: #a2530b;
+}
+
+.badge-manual {
+  color: var(--color-info);
+}
+
+.summary-issue-count {
+  color: var(--color-error);
+  background: none;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  padding: 2px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
