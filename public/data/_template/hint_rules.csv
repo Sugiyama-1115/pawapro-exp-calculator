@@ -1,0 +1,13 @@
+﻿ability_type,hint_level,multiplier,rounding
+blue,0,1.00,floor
+blue,1,0.70,floor
+blue,2,0.50,floor
+blue,3,0.40,floor
+blue,4,0.30,floor
+blue,5,0.20,floor
+gold,0,1.00,floor
+gold,1,0.70,floor
+gold,2,0.50,floor
+gold,3,0.40,floor
+gold,4,0.30,floor
+gold,5,0.20,floor

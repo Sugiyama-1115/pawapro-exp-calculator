@@ -9,3 +9,4 @@ test-results/
 # 実測データCSV（公開しない）
 public/data/*/
 !public/data/sample2024/
+!public/data/_template/
