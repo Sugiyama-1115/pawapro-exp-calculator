@@ -1,0 +1,5 @@
+﻿ability_id,player_type , to_value ,from_value,muscle,agility,technique,breaking,mental,memo
+# 先頭が # の行はコメントとして無視される
+ velocity , pitcher ,131,130, 10 ,0,5,0,0,"備考, あり"
+
+control,pitcher,41,40,0,0,4,0,3,ok

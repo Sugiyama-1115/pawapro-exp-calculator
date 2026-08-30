@@ -1,0 +1,2 @@
+player_type,ability_id,from_value,to_value,muscle,agility,technique,breaking,mental
+pitcher,velocity,130,131,-5,0,5,0,0
