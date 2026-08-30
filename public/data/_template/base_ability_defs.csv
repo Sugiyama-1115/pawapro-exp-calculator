@@ -1,0 +1,13 @@
+﻿ability_id,display_name,player_type,min_value,max_value,display_order,value_type
+trajectory,弾道,fielder,1,4,10,trajectory
+contact,ミート,fielder,1,100,20,numeric
+power,パワー,fielder,1,100,30,numeric
+speed,走力,fielder,1,100,40,numeric
+arm,肩力,fielder,1,100,50,numeric
+fielding,守備力,fielder,1,100,60,numeric
+catching,捕球,fielder,1,100,70,numeric
+velocity,球速,pitcher,100,170,10,numeric
+control,コントロール,pitcher,1,100,20,numeric
+stamina,スタミナ,pitcher,1,100,30,numeric
+fielding,守備力,pitcher,1,100,40,numeric
+catching,捕球,pitcher,1,100,50,numeric

@@ -39,7 +39,7 @@
 | `base_normal.csv` | 条件付き必須 | 基礎能力の必要経験点（センス○なし） |
 | `blue_abilities.csv` | 必須 | 青特殊能力マスタ |
 | `gold_abilities.csv` | 必須 | 金特殊能力の実測値 |
-| `gold_prerequisites.csv` | 必須 | 金特の下位青特定義 |
+| `gold_prerequisites.csv` | 必須 | **青特⇔金特 対照表**（金特の下位能力定義） |
 | `hint_rules.csv` | 必須 | コツLv倍率 |
 | `breaking_cache_sense_plus.csv` | 任意 | 変化球ステップ実測の共通キャッシュ（センス○あり） |
 | `breaking_cache_normal.csv` | 任意 | 変化球ステップ実測の共通キャッシュ（センス○なし） |
@@ -153,17 +153,20 @@ fielder,trajectory,1,2,50,0,0,0,20
 
 ## 6. `blue_abilities.csv`
 
+青特の必要経験点を記録する。**記録時のコツLv・センス状態を列として持つ**（`gold_abilities.csv` と同じ「実測テーブル」構造）。
+
 ```csv
-ability_id,display_name,player_type,ability_type,from_state,to_state,muscle,agility,technique,breaking,mental
-power_hitter,パワーヒッター,fielder,binary,NONE,ON,240,15,68,0,8
-average_hitter,アベレージヒッター,fielder,binary,NONE,ON,23,38,195,0,83
-chance,チャンス,fielder,rank,G,F,0,8,14,0,50
-chance,チャンス,fielder,rank,F,E,0,10,18,0,62
-chance,チャンス,fielder,rank,E,D,0,13,22,0,80
-chance,チャンス,fielder,rank,D,C,0,16,28,0,100
-chance,チャンス,fielder,rank,C,B,0,20,35,0,125
-chance,チャンス,fielder,rank,B,A,0,24,42,0,150
-strikeout,奪三振,pitcher,binary,NONE,ON,35,0,80,50,35
+ability_id,display_name,player_type,ability_type,from_state,to_state,hint_level,sense_mode,muscle,agility,technique,breaking,mental
+power_hitter,パワーヒッター,fielder,binary,NONE,ON,0,normal,240,15,68,0,8
+power_hitter,パワーヒッター,fielder,binary,NONE,ON,1,sense_plus,150,9,42,0,5
+average_hitter,アベレージヒッター,fielder,binary,NONE,ON,0,normal,23,38,195,0,83
+chance,チャンス,fielder,rank,G,F,0,normal,0,8,14,0,50
+chance,チャンス,fielder,rank,F,E,0,normal,0,10,18,0,62
+chance,チャンス,fielder,rank,E,D,0,normal,0,13,22,0,80
+chance,チャンス,fielder,rank,D,C,0,normal,0,16,28,0,100
+chance,チャンス,fielder,rank,C,B,0,normal,0,20,35,0,125
+chance,チャンス,fielder,rank,B,A,0,normal,0,24,42,0,150
+strikeout,奪三振,pitcher,binary,NONE,ON,0,normal,35,0,80,50,35
 ```
 
 | カラム | 必須 | 型 | 内容 |
@@ -174,7 +177,19 @@ strikeout,奪三振,pitcher,binary,NONE,ON,35,0,80,50,35
 | `ability_type` | ○ | `binary` / `rank` | 能力種別。同一 `ability_id` の全行で一致すること |
 | `from_state` | ○ | 状態値 | 遷移前 |
 | `to_state` | ○ | 状態値 | 遷移後 |
-| `muscle` 〜 `mental` | ○ | 整数 | **コツLv0・センス補正なし** の必要経験点 |
+| `hint_level` | ○ | 整数 0〜5 | **記録時のコツLv** |
+| `sense_mode` | ○ | `normal` / `sense_plus` | **記録時のセンス状態** |
+| `muscle` 〜 `mental` | ○ | 整数 | 当該 `hint_level` / `sense_mode` における必要経験点 |
+
+> **v1.0原仕様からの変更**: 原仕様の `blue_abilities.csv` は「コツLv0・センス補正なしの値」という前提を**文章でのみ**宣言し、データ側に根拠を持たなかった。そのためセンス○状態やコツ所持状態で測った値が混入しても検証で検出できず、倍率モデルの妥当性を実測で検算する手段も無かった。`gold_abilities.csv` と同じく `hint_level` / `sense_mode` を列として持たせ、記録条件を明示する。
+
+### 基準行
+
+`(ability_id, player_type, from_state)` の各遷移について、**`hint_level = 0` かつ `sense_mode = normal` の行を必ず1件持つこと**。この行を**基準行**と呼ぶ。欠落は `INVALID_CSV`（V-27）。
+
+- 基準行は倍率計算のフォールバック元になる（`04_calculation_spec.md` §4）。
+- 基準行以外の行は**任意**。記録した `(hint_level, sense_mode)` に完全一致するプランでのみ使用される。すべてのコツLv・センス状態を埋める必要はない。
+- 基準行以外の行を持たないデータの計算結果は、原仕様と完全に一致する。
 
 ### 状態値
 
@@ -189,7 +204,8 @@ strikeout,奪三振,pitcher,binary,NONE,ON,35,0,80,50,35
 
 - `binary` 型の行は `from_state = NONE`, `to_state = ON` のみ許可。
 - `rank` 型の行は **1段階ずつ**（`G→F`, `F→E`, …）のみ許可。2段階以上飛ぶ行は `INVALID_CSV`。
-- 一意キー: `(ability_id, player_type, from_state)`。重複は `DUPLICATE_DATA`。
+- 一意キー: `(ability_id, player_type, from_state, hint_level, sense_mode)`。重複は `DUPLICATE_DATA`。
+- 各遷移に基準行が存在すること。欠落は `INVALID_CSV`（V-27）。
 - `rank` 型で途中の遷移行が欠けている場合、その区間を含む計算時に `BLUE_DATA_MISSING` とする（ロード時エラーにはしない）。
 
 ---
@@ -197,6 +213,11 @@ strikeout,奪三振,pitcher,binary,NONE,ON,35,0,80,50,35
 ## 7. `gold_abilities.csv`
 
 金特の**実測値**を記録する。
+
+> **記録値の定義（重要）**
+> 本ファイルに記載する経験点は「**下位能力（下位青特）を習得した後**にゲーム画面へ表示された、金特単体の必要経験点」である。下位青特そのものの取得費は**含めない**。
+> 金特と下位青特の紐づけは `gold_prerequisites.csv`（**青特⇔金特 対照表**）が唯一の情報源であり、本ファイルには紐づけ情報を持たせない。
+> アプリは対照表を引いて下位青特を自動追加し、その取得費を別項目として計上する（`04_calculation_spec.md` §8）。したがって本ファイルへ下位青特の費用を混ぜて記録すると**二重計上**になる。
 
 ```csv
 ability_id,display_name,player_type,hint_level,sense_mode,muscle,agility,technique,breaking,mental,data_type
@@ -219,11 +240,14 @@ doctor_k,ドクターK,pitcher,1,sense_plus,50,0,100,70,40,measured
 
 - 一意キー: `(ability_id, player_type, hint_level, sense_mode)`。重複は `DUPLICATE_DATA`（原仕様 §24）。
 - ここに記録する値は「**下位青特を取得済みの状態でゲーム画面に表示された金特単体の必要経験点**」である（原仕様 §15）。下位青特の取得費は含まない。
+- 下位青特との紐づけは `gold_prerequisites.csv`（対照表）で行う。本ファイルに下位青特のIDや費用を持たせてはならない。
 - `sense_mode` はプランの `sense_mode` と一致する行のみ使用する。異なる `sense_mode` の行から推定してはならない。
 
 ---
 
-## 8. `gold_prerequisites.csv`
+## 8. `gold_prerequisites.csv` — 青特⇔金特 対照表
+
+金特と、その**下位能力である青特**との対応関係を定義する。`gold_abilities.csv` の経験点が「下位能力習得後の必要値」であることの前提を成立させるファイルであり、**紐づけの唯一の情報源**である。
 
 ```csv
 gold_id,lower_blue_id,required_state
@@ -238,6 +262,13 @@ doctor_k,strikeout,ON
 | `gold_id` | ○ | ID | 金特ID。`gold_abilities.csv` に存在すること |
 | `lower_blue_id` | ○ | ID | 下位青特ID。`blue_abilities.csv` に存在すること |
 | `required_state` | ○ | 状態値 | 金特取得に必要な下位青特の状態（`ON` またはランク） |
+
+### 対照表の役割
+
+1. `gold_abilities.csv` の値は下位青特の取得費を**含まない**。
+2. アプリは金特が指定されたとき、本表を引いて下位青特を必要能力へ**自動追加**する（`autoAdded = true`）。
+3. 合計 = 金特の必要経験点（下位習得後の値）＋ 下位青特の取得費。両者を別項目として計上することで二重計上を防ぐ。
+4. 本表に行を持たない金特は「下位能力なし」とみなし、自動追加を行わない。
 
 ### 制約
 
@@ -350,6 +381,7 @@ curve,0,1,3,1,0,0,25,110,0
 | V-24 | `gold_abilities.data_type` がすべて `measured` | `INVALID_CSV` |
 | V-25 | `config.csv` の値が型・範囲に適合する | `INVALID_CSV` |
 | V-26 | `base_ability_defs` の `max_value >= min_value` | `INVALID_CSV` |
+| V-27 | `blue_abilities` の各遷移に基準行（`hint_level=0` / `sense_mode=normal`）が存在する | `INVALID_CSV` |
 
 ### エラー報告形式
 
@@ -380,14 +412,18 @@ gold_prerequisites.csv 4行目: lower_blue_id "power_hittor" が blue_abilities.
 - サンプルデータは全検証ルールを通過し、かつ以下を含むこと。
   - 投手・野手の基礎能力を各1能力以上（連続する遷移を5段階以上）
   - `binary` 青特と `rank` 青特を各1件以上
+  - 基準行以外の記録条件（`hint_level > 0` または `sense_mode = sense_plus`）を持つ青特を1件以上
   - 前提を持つ金特と持たない金特を各1件以上
   - 実測Lvが1件のみの金特（推定テスト用）と2件以上の金特（高信頼推定テスト用）
   - 変化球キャッシュを3行以上
 - `public/data/pawapro2024/` 以下の実測データは `.gitignore` により Git 管理外とする。
+- `public/data/_template/` に空テンプレート一式を置く。新規ゲームのデータはこれをコピーして作成する。Git 管理対象とする。
+- `public/data/README.md` は記入者向けの記入ガイドである。**正式仕様は本書であり**、記述が食い違う場合は本書を優先する。
 
 `.gitignore` に以下を記載する。
 
 ```gitignore
 public/data/*/
 !public/data/sample2024/
+!public/data/_template/
 ```

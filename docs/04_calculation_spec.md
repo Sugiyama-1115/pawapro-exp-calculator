@@ -62,7 +62,9 @@ export interface BlueAbilityRow {
   abilityType: AbilityType;
   fromState: string;
   toState: string;
-  cost: ExpVector; // コツLv0・センス補正なしの値
+  hintLevel: number;      // 記録時のコツLv
+  senseMode: SenseMode;   // 記録時のセンス状態
+  cost: ExpVector;        // 当該 hintLevel / senseMode における実測値
 }
 
 export interface GoldAbilityRow {
@@ -119,6 +121,7 @@ export interface GameDataSet {
 
   blue: Map<string, BlueAbilityRow>;              // key: blueKey()
   blueIndex: Map<string, BlueAbilityMeta>;        // key: abilityId（表示名・型・遷移一覧）
+                                                  // 遷移一覧は基準行（Lv0/normal）から構築する
 
   gold: Map<string, GoldAbilityRow>;              // key: goldKey()
   goldByAbility: Map<string, GoldAbilityRow[]>;   // key: `${abilityId}|${senseMode}`
@@ -324,40 +327,57 @@ export function calculateBlueAbility(
    if (ti <  ci)         → INVALID_TARGET
    if (ti === ci)        → cost = 0 の item を返す（issue なし）
 
-3. baseSum = zeroVector()
+3. 行の解決関数を定義する（playerType 完全一致 → "common" の順でフォールバック）:
+       lookup(state, hl, sm) =
+            gameData.blue.get(blueKey(target.abilityId, playerType, state, hl, sm))
+         ?? gameData.blue.get(blueKey(target.abilityId, "common",  state, hl, sm))
+
+4. 【実測パス】対象区間の全遷移について
+   (target.hintLevel, senseMode) に完全一致する行が存在するか判定する。
+       exactRows = [lookup(states[i], target.hintLevel, senseMode) for i in [ci, ti)]
+   if (exactRows に null が1つも無い) {
+       cost = sumVectors(exactRows.map(r => r.cost))   ← 倍率・丸めを一切適用しない
+       source = "measured"
+       → 手順6へ
+   }
+
+5. 【基準行パス】基準行（hint_level=0 / sense_mode=normal）から倍率計算する。
+   baseSum = zeroVector()
    for (i = ci; i < ti; i++) {
-       row = gameData.blue.get(blueKey(target.abilityId, playerType, states[i]))
-          ?? gameData.blue.get(blueKey(target.abilityId, "common",  states[i]))
+       row = lookup(states[i], 0, "normal")
        if (!row) → BLUE_DATA_MISSING（打ち切り）
        baseSum = addVector(baseSum, row.cost)
    }
-
-4. hint = gameData.hintRules.get(`blue|${target.hintLevel}`)
+   hint = gameData.hintRules.get(`blue|${target.hintLevel}`)
    if (!hint) → INVALID_CSV（ロード時検証で防止済み）
    senseMul = senseMode === "sense_plus"
               ? config.blueSensePlusMultiplier
               : config.blueNormalMultiplier
-
-5. 各カテゴリ k について（独立に）:
+   各カテゴリ k について（独立に）:
        raw   = baseSum[k] * hint.multiplier * senseMul
        cost[k] = applyRounding(normalize(raw), hint.rounding)
+   source = "master"
 
 6. item = { category: "blue", id, displayName, detail: `${current} → ${target} / コツLv${hintLevel}`,
-            cost, source: "master", autoAdded }
+            cost, source, autoAdded }
 ```
 
 ### 重要な規定
 
-- **倍率の乗算は1回にまとめ、丸めは最後の1回のみ**行う。段階ごとに丸めてはならない。
+- **実測パスと基準行パスを遷移単位で混在させてはならない。** 区間内の遷移のうち1つでも完全一致行を欠く場合は、区間全体を基準行パスで計算する。混在させると丸め位置が実装依存になるため。
+- 実測パス（手順4）では**コツ倍率・センス倍率・丸めを一切適用しない**。CSVの値が既に当該条件での実測値であるため（金特と同じ方針）。
+- 基準行パス（手順5）では **倍率の乗算を1回にまとめ、丸めは最後の1回のみ**行う。段階ごとに丸めてはならない。
   - `applyRounding(base × hintMul × senseMul)` であり、`applyRounding(applyRounding(base × hintMul) × senseMul)` ではない。
+- `target.hintLevel = 0` かつ `senseMode = "normal"` のとき、手順4は必ず基準行にヒットする。このとき `source = "measured"` となり、値は基準行そのままである（基準行パスで計算しても倍率 1.00 × `blueNormalMultiplier` となり、`blueNormalMultiplier = 1.00` の既定値では同値）。
+- 基準行以外の行を持たないデータでは、手順4は Lv0/normal 以外で必ず失敗し、原仕様と同一の計算結果になる。
 - ランク型は**現在ランクから目標ランクまでの各遷移行のみ**を加算する。`G→F × 4 = D→C` のようなゲーム固有の関係をコードに持たせてはならない。
 - 丸め方式は `hint_rules.csv` の当該行の `rounding` を使用する。
 - センス倍率は青特にのみ適用する（金特・基礎能力・変化球には適用しない）。
 
-### 計算例
+### 計算例（基準行パス）
 
-`power_hitter` の CSV 値が `{muscle:240, agility:15, technique:68, breaking:0, mental:8}`、
-コツLv1（倍率 0.70 / floor）、`sense_plus`（倍率 0.90）のとき。
+`power_hitter` の**基準行**が `{muscle:240, agility:15, technique:68, breaking:0, mental:8}` で、
+コツLv1 / `sense_plus` の実測行が存在しないとき。コツLv1（倍率 0.70 / floor）、`sense_plus`（倍率 0.90）。
 
 | カテゴリ | 計算 | 結果 |
 |---|---|---|
@@ -366,6 +386,15 @@ export function calculateBlueAbility(
 | technique | floor(68 × 0.70 × 0.90) = floor(42.84) | 42 |
 | breaking | floor(0 × …) | 0 |
 | mental | floor(8 × 0.70 × 0.90) = floor(5.04) | 5 |
+
+`source = "master"`。
+
+### 計算例（実測パス）
+
+上記に加えて `power_hitter` の `hint_level=1` / `sense_mode=sense_plus` の行
+`{muscle:150, agility:9, technique:42, breaking:0, mental:5}` が存在するとき、
+コツLv1 / `sense_plus` のプランでは**この値をそのまま使用する**（倍率・丸めなし）。
+`cost = {150, 9, 42, 0, 5}`、`source = "measured"`。基準行からの計算値 `{151,9,42,0,5}` は使用しない。
 
 ---
 
@@ -644,9 +673,11 @@ export const baseKey = (playerType: string, abilityId: string, fromValue: number
   `${playerType}|${abilityId}|${fromValue}`;
 // 例: "pitcher|velocity|130"
 
-export const blueKey = (abilityId: string, playerType: string, fromState: string) =>
-  `${abilityId}|${playerType}|${fromState}`;
-// 例: "chance|fielder|D"
+export const blueKey = (
+  abilityId: string, playerType: string, fromState: string,
+  hintLevel: number, senseMode: string
+) => `${abilityId}|${playerType}|${fromState}|${hintLevel}|${senseMode}`;
+// 例: "chance|fielder|D|0|normal"
 
 export const goldKey = (abilityId: string, playerType: string, hintLevel: number, senseMode: string) =>
   `${abilityId}|${playerType}|${hintLevel}|${senseMode}`;

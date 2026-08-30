@@ -87,18 +87,22 @@ fielder,contact,40,41,2,0,10,0,14
 ### `blue_abilities.csv`
 
 ```csv
-ability_id,display_name,player_type,ability_type,from_state,to_state,muscle,agility,technique,breaking,mental
-power_hitter,パワーヒッター,fielder,binary,NONE,ON,240,15,68,0,8
-average_hitter,アベレージヒッター,fielder,binary,NONE,ON,23,38,195,0,83
-strikeout,奪三振,pitcher,binary,NONE,ON,35,0,80,50,35
-test_round,丸め検証,common,binary,NONE,ON,5,7,9,11,13
-chance,チャンス,fielder,rank,G,F,0,8,14,0,50
-chance,チャンス,fielder,rank,F,E,0,10,18,0,62
-chance,チャンス,fielder,rank,E,D,0,13,22,0,80
-chance,チャンス,fielder,rank,D,C,0,16,28,0,100
-chance,チャンス,fielder,rank,C,B,0,20,35,0,125
-chance,チャンス,fielder,rank,B,A,0,24,42,0,150
+ability_id,display_name,player_type,ability_type,from_state,to_state,hint_level,sense_mode,muscle,agility,technique,breaking,mental
+power_hitter,パワーヒッター,fielder,binary,NONE,ON,0,normal,240,15,68,0,8
+average_hitter,アベレージヒッター,fielder,binary,NONE,ON,0,normal,23,38,195,0,83
+average_hitter,アベレージヒッター,fielder,binary,NONE,ON,2,normal,12,20,100,0,45
+strikeout,奪三振,pitcher,binary,NONE,ON,0,normal,35,0,80,50,35
+test_round,丸め検証,common,binary,NONE,ON,0,normal,5,7,9,11,13
+chance,チャンス,fielder,rank,G,F,0,normal,0,8,14,0,50
+chance,チャンス,fielder,rank,F,E,0,normal,0,10,18,0,62
+chance,チャンス,fielder,rank,E,D,0,normal,0,13,22,0,80
+chance,チャンス,fielder,rank,D,C,0,normal,0,16,28,0,100
+chance,チャンス,fielder,rank,D,C,1,normal,0,15,25,0,90
+chance,チャンス,fielder,rank,C,B,0,normal,0,20,35,0,125
+chance,チャンス,fielder,rank,B,A,0,normal,0,24,42,0,150
 ```
+
+※ `average_hitter` の Lv2/normal 行と `chance` の D→C / Lv1/normal 行は**実測パス検証用**。いずれも基準行からの計算値と一致しない値を意図的に置いている（`average_hitter` Lv2/normal の計算値は `{11,19,97,0,41}`、`chance` D→C Lv1/normal の計算値は `{0,11,19,0,70}`）。
 
 ### `gold_abilities.csv`
 
@@ -182,7 +186,7 @@ slider,1,2,1,1,0,0,20,100,0
 
 | ID | 条件 | 期待 cost | 備考 |
 |---|---|---|---|
-| UT-BLUE-01 | `power_hitter` NONE→ON / コツLv0 / normal | `{240,15,68,0,8}` | 倍率1.00 |
+| UT-BLUE-01 | `power_hitter` NONE→ON / コツLv0 / normal | `{240,15,68,0,8}` | 基準行に完全一致 → `source="measured"` |
 | UT-BLUE-02 | `power_hitter` NONE→ON / コツLv2 / normal | `{120,7,34,0,4}` | `floor(15×0.5)=7` |
 | UT-BLUE-03 | `power_hitter` NONE→ON / コツLv1 / sense_plus | `{151,9,42,0,5}` | `floor(240×0.7×0.9)=151` |
 | UT-BLUE-04 | `chance` D→A / コツLv0 / normal | `{0,60,105,0,375}` | 3遷移の合計 |
@@ -194,6 +198,11 @@ slider,1,2,1,1,0,0,20,100,0
 | UT-BLUE-10 | **丸めは最後に1回のみ** `test_round` NONE→ON / コツLv1 / sense_plus | `{3,4,5,6,8}` | 段階ごとに丸めると `{2,3,5,6,8}` になる。**この差で二重丸めを検出する** |
 | UT-BLUE-11 | ランク遷移の1段階のみ加算 `chance` E→D / コツLv0 / normal | `{0,13,22,0,80}` | 他の遷移を含めないこと |
 | UT-BLUE-12 | `player_type` 不一致の青特を選択 | — | `BLUE_DATA_MISSING` |
+| UT-BLUE-13 | **実測パス** `average_hitter` NONE→ON / コツLv2 / normal | `{12,20,100,0,45}` | 完全一致行を倍率・丸めなしでそのまま使用。`source="measured"`。基準行計算値 `{11,19,97,0,41}` に**ならない** |
+| UT-BLUE-14 | 実測行と `sense_mode` 不一致 `average_hitter` NONE→ON / コツLv2 / sense_plus | `{10,17,87,0,37}` | Lv2/normal 行は使わず基準行パス。`source="master"`。`floor(195×0.5×0.9)=87` |
+| UT-BLUE-15 | **実測パスと基準行パスの混在禁止** `chance` D→A / コツLv1 / normal | `{0,42,73,0,262}` | D→C のみ実測行あり。区間全体を基準行パスで計算する。`source="master"`。実測混在なら `{0,45,78,0,282}` になる |
+| UT-BLUE-16 | 単一遷移が完全一致 `chance` D→C / コツLv1 / normal | `{0,15,25,0,90}` | `source="measured"`。基準行計算値 `{0,11,19,0,70}` に**ならない** |
+| UT-BLUE-17 | 実測行を持たない能力は原仕様と同結果 `strikeout` NONE→ON / コツLv2 / normal | `{17,0,40,25,17}` | 基準行パスのみ。`source="master"` |
 
 ---
 
@@ -327,6 +336,10 @@ UT-GOLD-04: 実測 Lv1(R=0.70) のみ。
 | UT-VAL-07 | `blue_rank_skip.csv` | `INVALID_CSV` | V-15 |
 | UT-VAL-08 | `blue_invalid_state.csv` | `INVALID_CSV` | V-11 |
 | UT-VAL-09 | `blue_conflicting_type.csv` | `INVALID_CSV` | V-17 |
+| UT-VAL-09a | `blue_missing_baseline.csv`（Lv1/normal 行のみで基準行なし） | `INVALID_CSV` | V-27 |
+| UT-VAL-09b | `blue_duplicate_hint.csv`（同一遷移・同一 `hint_level`/`sense_mode` の重複） | `DUPLICATE_DATA` | V-16 |
+| UT-VAL-09c | `blue_invalid_hint_level.csv`（`hint_level=6`） | `INVALID_CSV` | V-09 |
+| UT-VAL-09d | `blue_invalid_sense_mode.csv`（`sense_mode=sense`） | `INVALID_CSV` | V-08 |
 | UT-VAL-10 | `gold_duplicate_level.csv` | `DUPLICATE_DATA` | V-16 |
 | UT-VAL-11 | `gold_estimated_row.csv` | `INVALID_CSV` | V-24 |
 | UT-VAL-12 | `prereq_unknown_gold.csv` | `INVALID_CSV` | V-18 |
@@ -345,7 +358,7 @@ UT-GOLD-04: 実測 Lv1(R=0.70) のみ。
 | ID | 内容 | 期待 |
 |---|---|---|
 | UT-KEY-01 | `baseKey("pitcher","velocity",130)` | `"pitcher\|velocity\|130"` |
-| UT-KEY-02 | `blueKey("chance","fielder","D")` | `"chance\|fielder\|D"` |
+| UT-KEY-02 | `blueKey("chance","fielder","D",0,"normal")` | `"chance\|fielder\|D\|0\|normal"` |
 | UT-KEY-03 | `goldKey("archartist","fielder",3,"sense_plus")` | `"archartist\|fielder\|3\|sense_plus"` |
 | UT-KEY-04 | `hintKey("gold",3)` | `"gold\|3"` |
 | UT-KEY-05 | `breakingKey("slider",2,5,2)` | `"slider\|2\|5\|2"` |

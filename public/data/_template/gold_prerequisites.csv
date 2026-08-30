@@ -1,0 +1,29 @@
+﻿gold_id,lower_blue_id,required_state
+# ===== 青特⇔金特 対照表テンプレート =====
+# gold_abilities.csv に記録する経験点は「下位能力（下位青特）を習得した後」の必要値です。
+# 下位青特そのものの取得費は含めません。両者の紐づけはこの対照表だけで行います。
+#
+# gold_id        : 金特ID。gold_abilities.csv の ability_id と一致させること。
+# lower_blue_id  : 下位青特ID。blue_abilities.csv の ability_id と一致させること。
+# required_state : 金特取得に必要な下位青特の状態。
+#                  binary型の青特 -> ON のみ
+#                  rank型の青特   -> G / F / E / D / C / B / A のいずれか
+#
+# 記入ルール
+#  - 1つの金特に下位青特が複数ある場合は、同じ gold_id で複数行に分けて書く。
+#  - 下位能力を持たない金特は「行を書かない」。空行や空欄で表現しないこと。
+#  - gold_id と lower_blue_id の組み合わせは重複させない（DUPLICATE_DATA になる）。
+#  - この行のように先頭が # の行はコメントとして無視されます。記入時は削除しても構いません。
+#
+# ----- 記入例（binary型の下位青特）-----
+# archartist,power_hitter,ON
+# doctor_k,strikeout,ON
+#
+# ----- 記入例（rank型の下位青特：ランクAが必要）-----
+# clutch_master,chance,A
+#
+# ----- 記入例（下位青特が複数ある金特）-----
+# ultimate_slugger,power_hitter,ON
+# ultimate_slugger,chance,B
+#
+# ↓ ここから実データを記入してください
