@@ -19,6 +19,7 @@
 | [docs/06_persistence_spec.md](docs/06_persistence_spec.md) | 保存・インポート・エクスポート仕様 |
 | [docs/07_error_spec.md](docs/07_error_spec.md) | エラーコード・バリデーション・文言 |
 | [docs/08_nonfunctional.md](docs/08_nonfunctional.md) | 非機能要件・ビルド・デプロイ・コーディング規約 |
+| [docs/09_milestones.md](docs/09_milestones.md) | 完成までのマイルストーン（工程・完了判定・リスク） |
 | [docs/10_test_plan.md](docs/10_test_plan.md) | テスト計画 |
 | [docs/11_unit_test_spec.md](docs/11_unit_test_spec.md) | 単体テスト仕様（Vitest） |
 | [docs/12_ui_test_spec.md](docs/12_ui_test_spec.md) | 手動UI試験項目表 |
