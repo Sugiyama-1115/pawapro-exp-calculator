@@ -108,8 +108,8 @@ store/useResultStore → ui/
 - [x] 設計仕様書の作成（docs/00〜08）
 - [x] 試験項目の作成（docs/10〜14）
 - [x] サンプルCSVデータの作成（`public/data/sample2024/`）
-- [ ] Vite プロジェクトの初期化（package.json / tsconfig / vite.config 等）
-- [ ] `src/domain/` の実装と単体テスト
+- [x] Vite プロジェクトの初期化（package.json / tsconfig / vite.config 等）
+- [x] `src/domain/` の実装と単体テスト（M1〜M4・行カバレッジ98.8%）
 - [ ] `src/data/` の実装と単体テスト
 - [ ] `src/ui/` の実装
 - [ ] E2Eテストの実装
