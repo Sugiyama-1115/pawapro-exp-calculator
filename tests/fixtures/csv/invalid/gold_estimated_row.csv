@@ -1,0 +1,3 @@
+ability_id,display_name,player_type,hint_level,sense_mode,muscle,agility,technique,breaking,mental,data_type
+archartist,アーチスト,fielder,1,sense_plus,100,10,50,0,20,measured
+archartist,アーチスト,fielder,2,sense_plus,71,7,36,0,14,estimated

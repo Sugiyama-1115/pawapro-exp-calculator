@@ -110,7 +110,7 @@ store/useResultStore → ui/
 - [x] サンプルCSVデータの作成（`public/data/sample2024/`）
 - [x] Vite プロジェクトの初期化（package.json / tsconfig / vite.config 等）
 - [x] `src/domain/` の実装と単体テスト（M1〜M4・行カバレッジ98.8%）
-- [ ] `src/data/` の実装と単体テスト
+- [x] `src/data/` の実装と単体テスト（M5〜M7・行カバレッジ82.0%）
 - [ ] `src/ui/` の実装
 - [ ] E2Eテストの実装
 - [ ] CI / GitHub Pages デプロイの設定

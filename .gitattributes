@@ -1,0 +1,3 @@
+# UT-CSV-02（CRLF 改行のパース）を検証するフィクスチャは改行を変換しない。
+# 変換されると Linux 上の CI で CRLF が失われ、テストの意味がなくなる。
+tests/fixtures/csv/bom/*.csv -text

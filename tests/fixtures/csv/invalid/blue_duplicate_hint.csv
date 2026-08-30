@@ -1,0 +1,3 @@
+ability_id,display_name,player_type,ability_type,from_state,to_state,hint_level,sense_mode,muscle,agility,technique,breaking,mental
+power_hitter,パワーヒッター,fielder,binary,NONE,ON,0,normal,240,15,68,0,8
+power_hitter,パワーヒッター,fielder,binary,NONE,ON,0,normal,241,15,68,0,8

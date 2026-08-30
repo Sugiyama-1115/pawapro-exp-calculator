@@ -18,6 +18,7 @@ export default defineConfig({
       exclude: ["src/main.tsx", "src/vite-env.d.ts"],
       thresholds: {
         "src/domain/**": { lines: 90 },
+        "src/data/**": { lines: 80 },
       },
     },
   },

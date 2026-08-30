@@ -1,0 +1,4 @@
+player_type,ability_id,from_value,to_value,muscle,agility,technique,breaking,mental
+pitcher,velocity,130,131,20,0,10,0,0
+pitcher,velocity,131,132,20,0,10,0,0
+fielder,contact,40,41,2,0,10,0,14
