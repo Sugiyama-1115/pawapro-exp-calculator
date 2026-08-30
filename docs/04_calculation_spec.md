@@ -76,6 +76,20 @@ export interface GoldAbilityRow {
   cost: ExpVector; // 実測値
 }
 
+export interface BlueAbilityMeta {
+  abilityId: string;
+  displayName: string;
+  playerType: PlayerType;   // この ability_id 自身がマスタ上で持つ選手種別（プランの playerType とは独立）
+  abilityType: AbilityType;
+  states: string[];         // 基準行から構築した状態遷移列（例: ["NONE","ON"] や ["G",...,"A"]）
+}
+
+export interface GoldAbilityMeta {
+  abilityId: string;
+  displayName: string;
+  playerType: PlayerType;   // この ability_id 自身がマスタ上で持つ選手種別
+}
+
 export interface GoldPrerequisite {
   goldId: string;
   lowerBlueId: string;
@@ -308,11 +322,12 @@ export function calculateBaseAbility(
 ```ts
 export function calculateBlueAbility(
   gameData: GameDataSet,
-  playerType: "pitcher" | "fielder",
   senseMode: SenseMode,
   target: BlueTarget
 ): { item: CalculationItem | null; issues: CalculationIssue[] };
 ```
+
+**プランの `playerType`（選手種別）は引数に取らない。** 青特の計算は常にその能力自身のマスタ上の `player_type` に基づいて行う（FR-BL-09）。これにより、投手プランで `player_type = fielder` 限定の青特（野手専用能力）を選択した場合でも、能力自身の `fielder` 行を参照して正しく計算できる。
 
 ### アルゴリズム
 
@@ -327,9 +342,10 @@ export function calculateBlueAbility(
    if (ti <  ci)         → INVALID_TARGET
    if (ti === ci)        → cost = 0 の item を返す（issue なし）
 
-3. 行の解決関数を定義する（playerType 完全一致 → "common" の順でフォールバック）:
+3. 行の解決関数を定義する（能力自身の `meta.playerType` 完全一致 → "common" の順でフォールバック。
+   プランの `playerType` は使用しない）:
        lookup(state, hl, sm) =
-            gameData.blue.get(blueKey(target.abilityId, playerType, state, hl, sm))
+            gameData.blue.get(blueKey(target.abilityId, meta.playerType, state, hl, sm))
          ?? gameData.blue.get(blueKey(target.abilityId, "common",  state, hl, sm))
 
 4. 【実測パス】対象区間の全遷移について
@@ -403,17 +419,17 @@ export function calculateBlueAbility(
 ```ts
 export function calculateGoldAbility(
   gameData: GameDataSet,
-  playerType: "pitcher" | "fielder",
   senseMode: SenseMode,
   target: GoldTarget
 ): { item: CalculationItem | null; issues: CalculationIssue[] };
 ```
 
+**プランの `playerType`（選手種別）は引数に取らない。** 金特の計算は常にその能力自身のマスタ上の `player_type` に基づいて行う（FR-BL-09）。`goldByAbility` は `abilityId` 単位でキー化されており、同一 `abilityId` の行は `gold_abilities.csv` の一意キー制約（`03_data_spec.md` §7）によりマスタ上常に単一の `player_type` に属するため、プランの `playerType` による追加の絞り込みは不要である。これにより、投手プランで `player_type = fielder` 限定の金特（野手専用能力）を選択した場合でも正しく計算できる。
+
 ### アルゴリズム
 
 ```text
 1. rows = gameData.goldByAbility.get(`${target.abilityId}|${senseMode}`) ?? []
-   （playerType が "common" でない場合は playerType 一致行のみに絞り込む）
    if (rows.length === 0) → GOLD_DATA_MISSING（推定を行わない）
 
 2. exact = rows.find(r => r.hintLevel === target.hintLevel)

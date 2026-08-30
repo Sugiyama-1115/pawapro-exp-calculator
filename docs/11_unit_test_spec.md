@@ -197,7 +197,7 @@ slider,1,2,1,1,0,0,20,100,0
 | UT-BLUE-09 | `chance` D→A / コツLv3 / sense_plus | `{0,21,37,0,135}` | `floor(60×0.4×0.9)=21` / `floor(105×0.36)=37` / `floor(375×0.36)=135` |
 | UT-BLUE-10 | **丸めは最後に1回のみ** `test_round` NONE→ON / コツLv1 / sense_plus | `{3,4,5,6,8}` | 段階ごとに丸めると `{2,3,5,6,8}` になる。**この差で二重丸めを検出する** |
 | UT-BLUE-11 | ランク遷移の1段階のみ加算 `chance` E→D / コツLv0 / normal | `{0,13,22,0,80}` | 他の遷移を含めないこと |
-| UT-BLUE-12 | `player_type` 不一致の青特を選択 | — | `BLUE_DATA_MISSING` |
+| UT-BLUE-12 | 投手プランで `player_type=fielder` 限定の青特 `power_hitter` を選択 / NONE→ON / コツLv0 / normal | `{240,15,68,0,8}` | プランの `playerType` ではなく能力自身の `meta.playerType`（`fielder`）でマスタ行を解決する。基準行に一致 → `source="measured"`（`BLUE_DATA_MISSING` にならない） |
 | UT-BLUE-13 | **実測パス** `average_hitter` NONE→ON / コツLv2 / normal | `{12,20,100,0,45}` | 完全一致行を倍率・丸めなしでそのまま使用。`source="measured"`。基準行計算値 `{11,19,97,0,41}` に**ならない** |
 | UT-BLUE-14 | 実測行と `sense_mode` 不一致 `average_hitter` NONE→ON / コツLv2 / sense_plus | `{10,17,87,0,37}` | Lv2/normal 行は使わず基準行パス。`source="master"`。`floor(195×0.5×0.9)=87` |
 | UT-BLUE-15 | **実測パスと基準行パスの混在禁止** `chance` D→A / コツLv1 / normal | `{0,42,73,0,262}` | D→C のみ実測行あり。区間全体を基準行パスで計算する。`source="master"`。実測混在なら `{0,45,78,0,282}` になる |

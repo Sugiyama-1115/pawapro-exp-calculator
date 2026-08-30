@@ -153,7 +153,7 @@ M5〜M7（データ層）は M1 完了後であれば M2〜M4 と並行して進
 |---|---|
 | 作業 | `BaseAbilityTab` / `SpecialAbilityTab` / `AbilityPicker` / `HintLevelSelect` |
 | 参照 | `05_ui_spec.md` §4〜§5 |
-| 試験 | UI-T2-01〜12 / UI-T3-01〜22 |
+| 試験 | UI-T2-01〜12 / UI-T3-01〜24 |
 | 完了判定 | 金特選択で下位青特が自動追加され、手動指定と重複しない（UI-T3-15 / 16）。能力項目が `base_ability_defs.csv` から生成される |
 | 落とし穴 | 本 MVP で最も UI 実装量が多い。青特のマージ表示（🔗併記）を先に設計しておくと手戻りが減る |
 
