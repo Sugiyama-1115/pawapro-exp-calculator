@@ -111,7 +111,8 @@ store/useResultStore → ui/
 - [x] Vite プロジェクトの初期化（package.json / tsconfig / vite.config 等）
 - [x] `src/domain/` の実装と単体テスト（M1〜M4・行カバレッジ98.8%）
 - [x] `src/data/` の実装と単体テスト（M5〜M7・行カバレッジ82.0%）
-- [ ] `src/ui/` の実装
+- [x] `src/store/` の実装と単体テスト（M8）
+- [ ] `src/ui/` の実装（M9 完了：骨格・選手設定タブ・CSVインポート／M10・M11 残）
 - [ ] E2Eテストの実装
 - [ ] CI / GitHub Pages デプロイの設定
 - [ ] 実測データCSV（パワプロ2024-2025分）の作成 ※利用者作業
