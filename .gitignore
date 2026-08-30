@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.vite/
+*.local
+
+# 実測データCSV（公開しない）
+public/data/*/
+!public/data/sample2024/

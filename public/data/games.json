@@ -1,0 +1,19 @@
+﻿{
+  "games": [
+    {
+      "id": "sample2024",
+      "displayName": "サンプルデータ（ダミー値）",
+      "directory": "sample2024",
+      "bundled": true,
+      "note": "動作確認用。実際のゲームの値ではありません。"
+    },
+    {
+      "id": "pawapro2024",
+      "displayName": "パワプロ2024-2025",
+      "directory": "pawapro2024",
+      "bundled": false,
+      "note": "実測データ。利用者が配置またはインポートしてください。"
+    }
+  ],
+  "defaultGameId": "sample2024"
+}
