@@ -1,0 +1,6 @@
+﻿ability_id,display_name,player_type,hint_level,sense_mode,muscle,agility,technique,breaking,mental,data_type
+archartist,アーチスト,fielder,1,sense_plus,100,10,50,0,20,measured
+archartist,アーチスト,fielder,3,sense_plus,60,6,30,0,12,measured
+doctor_k,ドクターK,pitcher,1,sense_plus,50,0,100,70,40,measured
+clutch_master,クラッチマスター,fielder,0,sense_plus,300,30,150,0,60,measured
+laser_beam,レーザービーム,fielder,1,sense_plus,80,40,60,0,20,measured

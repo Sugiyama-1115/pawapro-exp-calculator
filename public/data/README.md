@@ -316,4 +316,7 @@ gold_prerequisites.csv 4行目: lower_blue_id "power_hittor" が blue_abilities.
 `sample2024/` は**ダミー値**であり実際のゲームの値ではない。動作確認と書式の参照用。
 アプリ上では常に「サンプルデータ（実際の値ではありません）」と表示される。
 
-実測データを入れたフォルダは `.gitignore` により Git 管理外になる（`sample2024/` と `_template/` を除く）。
+`sample_alt/` は E2E（E2E-09 ゲームバージョン切替）専用のデータ。`sample2024/` の複製に
+`base_sense_plus.csv` の `velocity 130→131` の値だけ差を付けてあり、ゲーム切替で両ゲームの値が混ざらないことを検証する。
+
+実測データを入れたフォルダは `.gitignore` により Git 管理外になる（`sample2024/` `sample_alt/` `_template/` を除く）。

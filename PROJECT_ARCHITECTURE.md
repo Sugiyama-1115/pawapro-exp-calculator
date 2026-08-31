@@ -113,6 +113,6 @@ store/useResultStore → ui/
 - [x] `src/data/` の実装と単体テスト（M5〜M7・行カバレッジ82.0%）
 - [x] `src/store/` の実装と単体テスト（M8）
 - [x] `src/ui/` の実装（M9〜M11・タブ5画面 + 結果サマリーバー + プラン一覧）
-- [ ] E2Eテストの実装
-- [ ] CI / GitHub Pages デプロイの設定
+- [x] E2Eテストの実装（M12・E2E-01〜11）
+- [x] CI / GitHub Pages デプロイの設定（M12・`.github/workflows/`）※Pages のソース設定はリポジトリ側の作業
 - [ ] 実測データCSV（パワプロ2024-2025分）の作成 ※利用者作業

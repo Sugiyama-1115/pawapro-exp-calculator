@@ -8,6 +8,13 @@
       "note": "動作確認用。実際のゲームの値ではありません。"
     },
     {
+      "id": "sample_alt",
+      "displayName": "サンプルデータ（切替確認用）",
+      "directory": "sample_alt",
+      "bundled": true,
+      "note": "ゲーム切替の動作確認用。sample2024 と一部の値だけが異なります。"
+    },
+    {
       "id": "pawapro2024",
       "displayName": "パワプロ2024-2025",
       "directory": "pawapro2024",
