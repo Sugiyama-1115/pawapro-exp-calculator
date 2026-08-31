@@ -199,7 +199,7 @@ export function AbilityPicker({
               )}
               <button
                 type="button"
-                data-testid={`picker-add-${entry.abilityId}`}
+                data-testid={`ability-add-${entry.abilityId}`}
                 disabled={selected}
                 onClick={() => {
                   onAdd(entry.kind, entry.abilityId);

@@ -341,7 +341,7 @@ export function SpecialAbilityTab(): JSX.Element {
                 </button>
               )}
               {row.autoFromNames.length > 0 && (
-                <p className="auto-note" data-testid={`blue-auto-note-${row.abilityId}`}>
+                <p className="auto-note" data-testid={`blue-auto-${row.abilityId}`}>
                   🔗 {row.autoFromNames.join("・")}の前提
                   {row.userSpecified
                     ? `でもあります（コツLvはユーザー指定の Lv${row.hintLevel} を使います）`
