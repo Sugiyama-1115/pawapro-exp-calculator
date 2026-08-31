@@ -9,7 +9,10 @@ import type { CsvKind } from "@/data/csv/schemas";
 import { CSV_FILE_NAMES } from "@/data/csv/schemas";
 import type { ValidatedGameData } from "@/data/csv/validators";
 import { validateFile } from "@/data/csv/validators";
-import { loadBreakingCacheEntries } from "@/data/persistence/breakingCacheRepository";
+import {
+  loadBreakingCacheEntries,
+  saveBreakingCacheRows,
+} from "@/data/persistence/breakingCacheRepository";
 import type { OverrideRecord } from "@/data/persistence/db";
 import { getAppState, setAppState } from "@/data/persistence/db";
 import {
@@ -27,7 +30,13 @@ import { ERROR_CODES } from "@/domain/errors/errorCodes";
 import type { GameDataSet } from "@/domain/models/gameData";
 
 // ui 層は store のみに依存する（02_architecture.md §1）。UI が必要とする型・定数はここで中継する。
-export { CSV_KINDS } from "@/data/csv/schemas";
+export {
+  BREAKING_LEVEL_MAX,
+  BREAKING_LEVEL_MIN,
+  CSV_KINDS,
+  PITCH_COUNT_MAX,
+  TOTAL_BREAK_MAX,
+} from "@/data/csv/schemas";
 export type { CsvKind } from "@/data/csv/schemas";
 export type { GameDefinition } from "@/data/repositories/gameDataLoader";
 export type { ValidationIssue } from "@/domain/errors/appError";
@@ -66,6 +75,7 @@ interface GameDataState {
   initialize(): Promise<void>;
   loadGame(gameId: string): Promise<void>;
   importCsv(kind: CsvKind, fileName: string, text: string): Promise<ImportOutcome>;
+  registerBreakingCache(senseMode: SenseMode, rows: BreakingCacheRow[]): Promise<void>;
   clearOverride(kind: CsvKind): Promise<void>;
   dismissWarning(): void;
 }
@@ -261,6 +271,17 @@ export const useGameDataStore = create<GameDataState>((set, get) => {
         overrides: [...state.overrides.filter((entry) => entry.kind !== kind), record],
       });
       return { ok: true, rowCount: validation.rows.length };
+    },
+
+    /**
+     * ステップ実測値を共通キャッシュへ登録する（FR-BR-06）。
+     * 登録後はゲームデータを再構築し、以降の完全一致検索で再利用できるようにする。
+     */
+    async registerBreakingCache(senseMode: SenseMode, rows: BreakingCacheRow[]): Promise<void> {
+      const gameId = get().gameId;
+      if (gameId === null || rows.length === 0) return;
+      await safeStorage(() => saveBreakingCacheRows(gameId, senseMode, rows), undefined);
+      await get().loadGame(gameId);
     },
 
     async clearOverride(kind: CsvKind): Promise<void> {

@@ -3,15 +3,38 @@
  * 並び順は updatedAt 降順（05_ui_spec.md §8）で、data 層の返却順をそのまま用いる。
  */
 import { create } from "zustand";
+import { parsePlanJson } from "@/data/persistence/planImporter";
 import type { PlanSummary } from "@/data/persistence/planRepository";
 import {
+  createPlanId,
   deletePlan,
   duplicatePlan,
+  getPlan,
   listPlanSummaries,
+  savePlan,
   toStoredPlan,
   toSummary,
 } from "@/data/persistence/planRepository";
 import { AppError } from "@/domain/errors/appError";
+import type { PlayerPlan } from "@/domain/models/plan";
+
+// ui 層は store のみに依存する（02_architecture.md §1）。
+export {
+  PLAN_IMPORT_BROKEN_PLAN,
+  PLAN_IMPORT_NOT_JSON,
+  PLAN_IMPORT_UNSUPPORTED_VERSION,
+  PLAN_IMPORT_WRONG_FORMAT,
+} from "@/data/persistence/planImporter";
+export type { PlanSummary } from "@/data/persistence/planRepository";
+
+export type PlanImportOutcome =
+  | { ok: true; plan: PlayerPlan; warning: string | null }
+  | { ok: false; message: string };
+
+/** 未知のゲームでも読み込みは行う（06_persistence_spec.md §5.2-5）。 */
+export function unknownGameWarning(gameId: string): string {
+  return `このプランのゲーム「${gameId}」は現在登録されていません。計算時にデータ不足として報告されます。`;
+}
 
 interface PlanListState {
   plans: PlanSummary[];
@@ -21,6 +44,7 @@ interface PlanListState {
   refresh(): Promise<void>;
   duplicate(id: string): Promise<PlanSummary | null>;
   remove(id: string): Promise<void>;
+  importPlanJson(text: string, knownGameIds: string[]): Promise<PlanImportOutcome>;
   dismissWarning(): void;
 }
 
@@ -54,6 +78,29 @@ export const usePlanListStore = create<PlanListState>((set, get) => {
     async remove(id: string): Promise<void> {
       await guard(() => deletePlan(id), undefined);
       await get().refresh();
+    },
+
+    /**
+     * プランJSONを別プランとして追加する（06_persistence_spec.md §5.2）。
+     * 既存プランと id が衝突する場合は採番し直し、既存を上書きしない。
+     */
+    async importPlanJson(text: string, knownGameIds: string[]): Promise<PlanImportOutcome> {
+      const parsed = parsePlanJson(text);
+      if (!parsed.ok) return parsed;
+
+      const collided = await guard(() => getPlan(parsed.plan.id), null);
+      const plan: PlayerPlan =
+        collided === null ? parsed.plan : { ...parsed.plan, id: createPlanId() };
+      const saved = await guard(() => savePlan(plan), null);
+      if (saved === null) {
+        return { ok: false, message: get().storageWarning ?? "プランを保存できませんでした。" };
+      }
+      await get().refresh();
+      return {
+        ok: true,
+        plan: saved,
+        warning: knownGameIds.includes(saved.gameId) ? null : unknownGameWarning(saved.gameId),
+      };
     },
 
     dismissWarning(): void {

@@ -8,6 +8,7 @@ import { isSampleGame, selectCurrentGame, useGameDataStore } from "@/store/useGa
 import { usePlanStore } from "@/store/usePlanStore";
 import { startResultSync } from "@/store/useResultStore";
 import { ErrorBoundary } from "@/ui/ErrorBoundary";
+import { PlanListDialog } from "@/ui/components/PlanListDialog";
 import { ResultSummaryBar } from "@/ui/components/ResultSummaryBar";
 import { BaseAbilityTab } from "@/ui/tabs/BaseAbilityTab";
 import { BreakingBallTab } from "@/ui/tabs/BreakingBallTab";
@@ -43,6 +44,7 @@ async function bootstrap(): Promise<void> {
 
 export function App(): JSX.Element {
   const [tab, setTab] = useState<TabId>("plan");
+  const [planListOpen, setPlanListOpen] = useState(false);
 
   const games = useGameDataStore((state) => state.games);
   const gameId = useGameDataStore((state) => state.gameId);
@@ -100,6 +102,15 @@ export function App(): JSX.Element {
                 </option>
               ))}
             </select>
+            <button
+              type="button"
+              data-testid="open-plan-list"
+              onClick={() => {
+                setPlanListOpen(true);
+              }}
+            >
+              プラン一覧
+            </button>
           </div>
           {isSampleGame(game) && (
             <p className="badge badge-sample" data-testid="sample-data-badge">
@@ -143,6 +154,16 @@ export function App(): JSX.Element {
           {activeTab === "breaking" && <BreakingBallTab />}
           {activeTab === "result" && <ResultTab />}
         </main>
+
+        <PlanListDialog
+          open={planListOpen}
+          onClose={() => {
+            setPlanListOpen(false);
+          }}
+          onPlanOpened={() => {
+            setTab("plan");
+          }}
+        />
 
         <footer className="app-footer">
           <ResultSummaryBar

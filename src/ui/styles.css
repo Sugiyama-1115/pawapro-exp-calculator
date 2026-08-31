@@ -431,3 +431,152 @@ body {
   font-size: 12px;
   margin: 4px 0;
 }
+
+/* --- M11: 変化球・計算結果・プラン一覧 --- */
+
+.breaking-composition,
+.breaking-mode,
+.breaking-aggregate-section,
+.breaking-step-section,
+.result-total,
+.result-breakdown {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 12px 0;
+}
+
+.breaking-composition ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.breaking-composition li {
+  display: block;
+  padding: 4px 0;
+}
+
+.breaking-composition li > * {
+  margin-right: 8px;
+}
+
+.breaking-summary {
+  margin-left: 12px;
+  color: var(--color-muted);
+}
+
+.breaking-mode label {
+  margin-right: 16px;
+}
+
+.breaking-aggregate label,
+.breaking-step-cost label {
+  margin-right: 8px;
+}
+
+.breaking-aggregate input,
+.breaking-step-cost input {
+  width: 6em;
+  margin-left: 4px;
+}
+
+.breaking-step-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.breaking-step-table th,
+.breaking-step-table td {
+  border: 1px solid var(--color-border);
+  padding: 4px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.breaking-step-table input[type="number"] {
+  width: 5em;
+}
+
+.result-category {
+  margin: 12px 0;
+}
+
+.result-category h4 {
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.result-subtotal {
+  margin-left: 12px;
+  color: var(--color-muted);
+  font-weight: normal;
+}
+
+.result-category ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.result-category li {
+  display: block;
+  border-bottom: 1px solid var(--color-border);
+  padding: 4px 0;
+}
+
+.result-category li > * {
+  margin-right: 8px;
+}
+
+.result-actions button {
+  margin-right: 8px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  z-index: 10;
+}
+
+.modal {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 16px;
+  width: min(880px, 100%);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.plan-list-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.plan-list-table th,
+.plan-list-table td {
+  border-bottom: 1px solid var(--color-border);
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.plan-list-table td button {
+  margin-right: 4px;
+}
