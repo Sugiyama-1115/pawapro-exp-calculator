@@ -10,12 +10,15 @@ import { EXP_LABELS } from "./ExpVectorTable";
 export interface ExpInlineProps {
   vector: ExpVector;
   testId?: string;
+  /** 値が 0 のカテゴリを省略する（05_ui_spec.md §7 の内訳行）。 */
+  omitZero?: boolean;
 }
 
-export function ExpInline({ vector, testId }: ExpInlineProps): JSX.Element {
+export function ExpInline({ vector, testId, omitZero = false }: ExpInlineProps): JSX.Element {
+  const keys = omitZero ? EXP_KEYS.filter((key) => vector[key] !== 0) : EXP_KEYS;
   return (
     <span className="exp-inline" data-testid={testId}>
-      {EXP_KEYS.map((key) => (
+      {keys.map((key) => (
         <span key={key} className={vector[key] === 0 ? "exp-zero" : undefined}>
           {EXP_LABELS[key]} {formatNumber(vector[key])}
         </span>
