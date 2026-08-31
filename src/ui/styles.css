@@ -314,3 +314,120 @@ body {
   cursor: pointer;
   font-size: 12px;
 }
+
+/* 基礎能力・特殊能力タブ（05_ui_spec.md §4・§5） */
+
+.ability-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.ability-table th,
+.ability-table td {
+  border-bottom: 1px solid var(--color-border);
+  padding: 4px 8px;
+  text-align: left;
+  font-weight: 400;
+  vertical-align: top;
+}
+
+.ability-table thead th,
+.ability-table tfoot th {
+  background: var(--color-bg-subtle);
+  font-weight: 700;
+}
+
+.ability-table input[type="number"] {
+  width: 80px;
+}
+
+.ability-table .row-error {
+  background: var(--color-error-bg);
+}
+
+.exp-inline {
+  display: inline-flex;
+  gap: 12px;
+}
+
+.cell-error {
+  color: var(--color-error);
+}
+
+.fielder-section,
+.picker {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 12px 0;
+}
+
+.picker-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.picker-results {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.picker-results li {
+  display: block;
+  padding: 2px 0;
+}
+
+.picker-type,
+.picker-prereq,
+.picker-omitted {
+  color: var(--color-muted);
+  margin-left: 12px;
+}
+
+.picker-divider {
+  color: var(--color-muted);
+  border-top: 1px dashed var(--color-border);
+  margin: 8px 0 4px;
+  padding-top: 4px;
+}
+
+.picker-results button {
+  margin-left: 12px;
+}
+
+.selected-list {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 12px 0;
+}
+
+.selected-list h3 {
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.selected-list ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.selected-list li {
+  display: block;
+  border-bottom: 1px solid var(--color-border);
+  padding: 6px 0;
+}
+
+.selected-list li > * {
+  margin-right: 8px;
+}
+
+.auto-note,
+.prereq-note {
+  color: var(--color-muted);
+  font-size: 12px;
+  margin: 4px 0;
+}
