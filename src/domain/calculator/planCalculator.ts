@@ -1,5 +1,6 @@
 import { INCOMPLETE_CODES } from "../errors/errorCodes";
 import { baseDefKey } from "../keys";
+import type { BaseAbilityDef } from "../models/ability";
 import { statesOf } from "../models/ability";
 import type { ExpVector } from "../models/expVector";
 import { addVector, sumVectors, zeroVector } from "../models/expVector";
@@ -52,14 +53,31 @@ export function calculatePlan(gameData: GameDataSet, plan: PlayerPlan): Calculat
   };
 }
 
+/**
+ * 基礎能力の定義を解決する。投手プランで野手基礎能力も入力できるため（FR-B-07）、
+ * プランの種別で見つからない場合はもう一方の種別の定義を使う。
+ * 経験点行も定義側の player_type で引く（03_data_spec.md §4）。
+ */
+function resolveBaseDef(
+  gameData: GameDataSet,
+  playerType: PlayerPlan["playerType"],
+  abilityId: string,
+): BaseAbilityDef | undefined {
+  const other = playerType === "pitcher" ? "fielder" : "pitcher";
+  return (
+    gameData.baseDefs.get(baseDefKey(playerType, abilityId)) ??
+    gameData.baseDefs.get(baseDefKey(other, abilityId))
+  );
+}
+
 function calculateBaseItems(
   gameData: GameDataSet,
   plan: PlayerPlan,
   issues: CalculationIssue[],
 ): CalculationItem[] {
   const abilityIds = Object.keys(plan.targetBase).sort((a, b) => {
-    const oa = gameData.baseDefs.get(baseDefKey(plan.playerType, a))?.displayOrder;
-    const ob = gameData.baseDefs.get(baseDefKey(plan.playerType, b))?.displayOrder;
+    const oa = resolveBaseDef(gameData, plan.playerType, a)?.displayOrder;
+    const ob = resolveBaseDef(gameData, plan.playerType, b)?.displayOrder;
     if (oa !== ob) {
       return (oa ?? Number.MAX_SAFE_INTEGER) - (ob ?? Number.MAX_SAFE_INTEGER);
     }
@@ -74,10 +92,10 @@ function calculateBaseItems(
     }
     // 初期値の入力が無い場合は「変化なし」として扱う。値を推測して経験点を作らないため。
     const currentValue = plan.currentBase[abilityId] ?? targetValue;
-    const def = gameData.baseDefs.get(baseDefKey(plan.playerType, abilityId));
+    const def = resolveBaseDef(gameData, plan.playerType, abilityId);
     const outcome = calculateBaseAbility(
       gameData,
-      plan.playerType,
+      def?.playerType ?? plan.playerType,
       plan.senseMode,
       abilityId,
       currentValue,
